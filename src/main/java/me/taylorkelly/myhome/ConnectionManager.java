@@ -11,7 +11,7 @@ public class ConnectionManager {
         
     public static Connection initialize() {
         try {
-        	if(HomeSettings.usemySQL == true) {
+        	if(HomeSettings.usemySQL) {
         		Class.forName("com.mysql.jdbc.Driver");
         		conn = DriverManager.getConnection(HomeSettings.mySQLconn, HomeSettings.mySQLuname, HomeSettings.mySQLpass);
         		conn.setAutoCommit(false);
@@ -32,7 +32,14 @@ public class ConnectionManager {
 
     public static Connection getConnection() {
         if(conn == null) conn = initialize();
-      	return conn;
+        if(HomeSettings.usemySQL) {
+	        try {
+	        	if(!conn.isValid(10)) conn = initialize();
+	        } catch (SQLException ex) {
+	        	HomeLogger.severe("Failed to check SQL status", ex);
+	        }
+        }
+        return conn;
     }
 
     public static void closeConnection() {

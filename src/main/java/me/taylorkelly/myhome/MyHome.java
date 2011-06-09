@@ -21,7 +21,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class MyHome extends JavaPlugin {
 
     private MHPlayerListener playerListener;
-    private MHPluginListener pluginListener;
     private HomeList homeList;
     private boolean warning = false;
     public String name;
@@ -46,24 +45,23 @@ public class MyHome extends JavaPlugin {
         HomeSettings.initialize(getDataFolder());
 
         libCheck();
-        convertOldDB(getDataFolder());
         if(!sqlCheck()) { return; }
         
         homeList = new HomeList(getServer());
         playerListener = new MHPlayerListener(homeList, getServer(), this);
-        pluginListener = new MHPluginListener(this);
-
+        
         HomePermissions.initialize(getServer());
         HomeHelp.initialize(this);
         
         getServer().getPluginManager().registerEvent(Event.Type.PLAYER_JOIN, playerListener, Priority.Monitor, this);
         getServer().getPluginManager().registerEvent(Event.Type.PLAYER_RESPAWN, playerListener, Priority.Monitor, this);
-        getServer().getPluginManager().registerEvent(Event.Type.PLUGIN_ENABLE, pluginListener, Priority.Monitor, this);
-        getServer().getPluginManager().registerEvent(Event.Type.PLUGIN_DISABLE, pluginListener, Priority.Monitor, this);
-        
         if(HomeSettings.bedsCanSethome != 0) {
         	// We don't need this if the beds dont autosethome
         	getServer().getPluginManager().registerEvent(Event.Type.PLAYER_BED_LEAVE, playerListener, Priority.Monitor, this);
+        }
+        if(HomeSettings.loadChunks) {
+         	// We dont need to register for teleporting if we dont want to load chunks.
+         	getServer().getPluginManager().registerEvent(Event.Type.PLAYER_TELEPORT, playerListener, Priority.Monitor, this);
         }
        
         HomeLogger.info(name + " " + version + " enabled");
@@ -76,14 +74,6 @@ public class MyHome extends JavaPlugin {
             updater.check();
             updater.update();
         } catch (Exception e) {
-        }
-    }
-    
-    private void convertOldDB(File df) {
-        File newDatabase = new File(df, "homes.db");
-        File oldDatabase = new File("homes-warps.db");
-        if (!newDatabase.exists() && oldDatabase.exists()) {
-            updateFiles(oldDatabase, newDatabase);
         }
     }
     
@@ -180,18 +170,11 @@ public class MyHome extends JavaPlugin {
                     	}
                     }
                     /**
-                     * /home convert
+                     *  /home reload
                      */
-                } else if (split.length == 1 && split[0].equalsIgnoreCase("convert") && HomePermissions.isAdmin(player)) {
-                    if (!warning) {
-                        player.sendMessage(ChatColor.RED + "Warning: " + ChatColor.WHITE + "Only use a copy of homes.txt.");
-                        player.sendMessage("This will delete the homes.txt it uses");
-                        player.sendMessage("Use " + ChatColor.RED + "'/home convert'" + ChatColor.WHITE + " again to confirm.");
-                        warning = true;
-                    } else {
-                        Converter.convert(player, getServer(), homeList);
-                        warning = false;
-                    }
+                } else if(split.length == 1 && split[0].equalsIgnoreCase("reload") && HomePermissions.isAdmin(player)) {
+                	HomeSettings.initialize(getDataFolder());
+                	player.sendMessage("[MyHome] Reloading config");
                     /**
                      * /home set
                      */

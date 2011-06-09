@@ -148,7 +148,7 @@ public class Home {
             if (i + 2 < permissions.size()) {
                 builder.append(", ");
             } else if (i + 1 < permissions.size()) {
-                builder.append(" and");
+                builder.append(" and ");
             }
         }
         builder.append(" are ");

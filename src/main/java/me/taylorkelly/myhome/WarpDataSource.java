@@ -2,23 +2,31 @@ package me.taylorkelly.myhome;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.io.File;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class WarpDataSource {
-
-    public final static String DATABASE = "jdbc:sqlite:homes-warps.db";
-    private final static String HOME_TABLE = "CREATE TABLE IF NOT EXISTS `homeTable` (" 
-    	    + "`id` INTEGER PRIMARY KEY," + "`name` varchar(32) NOT NULL DEFAULT 'Player',"
-            + "`world` varchar(32) NOT NULL DEFAULT '0'," + "`x` DOUBLE NOT NULL DEFAULT '0'," + "`y` tinyint NOT NULL DEFAULT '0',"
-            + "`z` DOUBLE NOT NULL DEFAULT '0'," + "`yaw` smallint NOT NULL DEFAULT '0'," + "`pitch` smallint NOT NULL DEFAULT '0',"
-            + "`publicAll` boolean NOT NULL DEFAULT '0'," + "`permissions` TEXT NOT NULL DEFAULT '',"
-            + "`welcomeMessage` varchar(100) NOT NULL DEFAULT ''" + ");";
+    public final static String sqlitedb = "/homes.db";
+    private final static String HOME_TABLE = "CREATE TABLE `homeTable` (" 
+    	+ "`id` INTEGER PRIMARY KEY,"
+    	+ "`name` varchar(32) NOT NULL DEFAULT 'Player',"
+        + "`world` varchar(32) NOT NULL DEFAULT 'world',"
+        + "`x` DOUBLE NOT NULL DEFAULT '0',"
+        + "`y` tinyint NOT NULL DEFAULT '0',"
+        + "`z` DOUBLE NOT NULL DEFAULT '0',"
+        + "`yaw` smallint NOT NULL DEFAULT '0',"
+        + "`pitch` smallint NOT NULL DEFAULT '0',"
+        + "`publicAll` boolean NOT NULL DEFAULT '0',"
+        + "`permissions` text,"
+        + "`welcomeMessage` varchar(100) NOT NULL DEFAULT ''"
+        + ");";
 
     public static void initialize() {
     	if (!tableExists()) {
@@ -98,6 +106,7 @@ public class WarpDataSource {
     private static void createTable() {
     	Statement st = null;
     	try {
+    		HomeLogger.info("[MyHome] Creating Database...");
     		Connection conn = ConnectionManager.getConnection();
     		st = conn.createStatement();
     		st.executeUpdate(HOME_TABLE);
@@ -106,19 +115,69 @@ public class WarpDataSource {
     		if(HomeSettings.usemySQL){ 
     			// We need to set auto increment on SQL.
     			String sql = "ALTER TABLE `homeTable` CHANGE `id` `id` INT NOT NULL AUTO_INCREMENT ";
+    			HomeLogger.info("[MyHome] Modifying database for MySQL support");
     			st = conn.createStatement();
     			st.executeUpdate(sql);
     			conn.commit();
+    			
+    			// Check for old homes.db and import to mysql
+    			File sqlitefile = new File(HomeSettings.dataDir.getAbsolutePath() + sqlitedb);
+    			if (!sqlitefile.exists()) {
+    				HomeLogger.info("[MyHome] Could not find old " + sqlitedb);
+    				return;
+    			} else {
+	    			HomeLogger.info("[MyHome] Trying to import homes from homes.db");
+	    			Class.forName("org.sqlite.JDBC");
+	        		Connection sqliteconn = DriverManager.getConnection("jdbc:sqlite:" + HomeSettings.dataDir.getAbsolutePath() + sqlitedb);
+	        		sqliteconn.setAutoCommit(false);
+	        		Statement slstatement = sqliteconn.createStatement();
+	        		ResultSet slset = slstatement.executeQuery("SELECT * FROM homeTable");
+	        		
+	        		int size = 0;
+	        		while (slset.next()) {
+	        			size++;
+	        			int index = slset.getInt("id");
+	        			String name = slset.getString("name");
+	        			String world = slset.getString("world");
+	        			double x = slset.getDouble("x");
+	        			int y = slset.getInt("y");
+	        			double z = slset.getDouble("z");
+	        			int yaw = slset.getInt("yaw");
+	        			int pitch = slset.getInt("pitch");
+	        			boolean publicAll = slset.getBoolean("publicAll");
+	        			String permissions = slset.getString("permissions");
+	        			String welcomeMessage = slset.getString("welcomeMessage");
+	        			Home warp = new Home(index, name, world, x, y, z, yaw, pitch, publicAll, permissions, welcomeMessage);
+	        			addWarp(warp);
+	        		}
+	        		HomeLogger.info("[MyHome] Imported " + size + " homes from " + sqlitedb);
+	        		HomeLogger.info("[MyHome] Renaming " + sqlitedb + " to " + sqlitedb + ".old");
+	        		if (!sqlitefile.renameTo(new File(HomeSettings.dataDir.getAbsolutePath(), sqlitedb + ".old"))) {
+	    				HomeLogger.warning("[MyHome] Failed to rename " + sqlitedb + "! Please rename this manually!");
+	    			}
+	        		if (slstatement != null) {
+        				slstatement.close();
+        			}
+        			if (slset != null) {
+        				slset.close();
+        			}
+    				
+    				if (sqliteconn != null) {
+        				sqliteconn.close();
+    				}
+    			}
     		}
     	} catch (SQLException e) {
-    		HomeLogger.severe("Create Table Exception", e);
+    		HomeLogger.severe("[MyHome] Create Table Exception", e);
+    	} catch (ClassNotFoundException e) {
+            HomeLogger.severe("[MyHome] You need the SQLite library.", e);
     	} finally {
     		try {
     			if (st != null) {
     				st.close();
     			}
     		} catch (SQLException e) {
-    			HomeLogger.severe("Could not create the table (on close)");
+    			HomeLogger.severe("[MyHome] Could not create the table (on close)");
     		}
     	}
     }

@@ -2,11 +2,14 @@ package me.taylorkelly.myhome;
 
 import org.bukkit.Location;
 import org.bukkit.Server;
+import org.bukkit.Chunk;
+import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 
 public class MHPlayerListener extends PlayerListener {
 
@@ -34,6 +37,15 @@ public class MHPlayerListener extends PlayerListener {
     	}
     }
 
+    @Override
+    public void onPlayerTeleport(PlayerTeleportEvent event) {
+		World world = event.getPlayer().getWorld();
+		Chunk chunk = world.getChunkAt(event.getTo());
+		int x = chunk.getX();
+		int z = chunk.getZ();
+		world.refreshChunk(x, z);
+	}
+    
     @Override
     public void onPlayerRespawn(PlayerRespawnEvent event) {
         if (HomeSettings.respawnToHome && homeList.homeExists(event.getPlayer().getName())) {

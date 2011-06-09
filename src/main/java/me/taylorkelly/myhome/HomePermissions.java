@@ -12,10 +12,10 @@ import org.bukkit.plugin.Plugin;
 
 public class HomePermissions {
 
-    private enum PermissionHandler {
-        PERMISSIONSEX, PERMISSIONS, PERMISSIONS3, GROUPMANAGER, NONE
+    private enum PermissionsHandler {
+        PERMISSIONSEX, PERMISSIONS3, PERMISSIONS, GROUPMANAGER, NONE
     }
-    private static PermissionHandler handler;
+    private static PermissionsHandler handler;
     private static Plugin permissionPlugin;
 
     public static void initialize(Server server) {
@@ -25,12 +25,12 @@ public class HomePermissions {
 
         if (permissionsEx != null) {
             permissionPlugin = permissionsEx;
-            handler = PermissionHandler.PERMISSIONSEX;
+            handler = PermissionsHandler.PERMISSIONSEX;
             String version = permissionsEx.getDescription().getVersion();
             HomeLogger.info("Permissions enabled using: PermissionsEx v" + version);
         } else if (groupManager != null) {
             permissionPlugin = groupManager;
-            handler = PermissionHandler.GROUPMANAGER;
+            handler = PermissionsHandler.GROUPMANAGER;
             String version = groupManager.getDescription().getVersion();
             HomeLogger.info("Permissions enabled using: GroupManager v" + version);
         } else if (permissions != null) {
@@ -38,13 +38,13 @@ public class HomePermissions {
             String version = permissions.getDescription().getVersion();
             if(version.contains("3.")) {
             	// This shouldn't make any difference according to the Permissions API
-            	handler = PermissionHandler.PERMISSIONS3;
+            	handler = PermissionsHandler.PERMISSIONS3;
             } else {
-            	handler = PermissionHandler.PERMISSIONS;
+            	handler = PermissionsHandler.PERMISSIONS;
             }
             HomeLogger.info("Permissions enabled using: Permissions v" + version);
         } else {
-            handler = PermissionHandler.NONE;
+            handler = PermissionsHandler.NONE;
             HomeLogger.warning("A permission plugin isn't loaded.");
         }
     }
