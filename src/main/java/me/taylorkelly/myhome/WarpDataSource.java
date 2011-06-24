@@ -19,7 +19,7 @@ public class WarpDataSource {
     	+ "`name` varchar(32) NOT NULL DEFAULT 'Player',"
         + "`world` varchar(32) NOT NULL DEFAULT 'world',"
         + "`x` DOUBLE NOT NULL DEFAULT '0',"
-        + "`y` tinyint NOT NULL DEFAULT '0',"
+        + "`y` DOUBLE NOT NULL DEFAULT '0',"
         + "`z` DOUBLE NOT NULL DEFAULT '0',"
         + "`yaw` smallint NOT NULL DEFAULT '0',"
         + "`pitch` smallint NOT NULL DEFAULT '0',"
@@ -51,7 +51,7 @@ public class WarpDataSource {
     			String name = set.getString("name");
     			String world = set.getString("world");
     			double x = set.getDouble("x");
-    			int y = set.getInt("y");
+    			double y = set.getDouble("y");
     			double z = set.getDouble("z");
     			int yaw = set.getInt("yaw");
     			int pitch = set.getInt("pitch");
@@ -140,7 +140,7 @@ public class WarpDataSource {
 	        			String name = slset.getString("name");
 	        			String world = slset.getString("world");
 	        			double x = slset.getDouble("x");
-	        			int y = slset.getInt("y");
+	        			double y = slset.getDouble("y");
 	        			double z = slset.getDouble("z");
 	        			int yaw = slset.getInt("yaw");
 	        			int pitch = slset.getInt("pitch");
@@ -192,7 +192,7 @@ public class WarpDataSource {
     		ps.setString(2, warp.name);
     		ps.setString(3, warp.world);
     		ps.setDouble(4, warp.x);
-    		ps.setInt(5, warp.y);
+    		ps.setDouble(5, warp.y);
     		ps.setDouble(6, warp.z);
     		ps.setInt(7, warp.yaw);
     		ps.setInt(8, warp.pitch);
@@ -301,7 +301,7 @@ public class WarpDataSource {
     		Connection conn = ConnectionManager.getConnection();
     		ps = conn.prepareStatement("UPDATE homeTable SET x = ?, y = ?, z = ?, world = ?, yaw = ?, pitch = ? WHERE id = ?");
     		ps.setDouble(1, warp.x);
-    		ps.setInt(2, warp.y);
+    		ps.setDouble(2, warp.y);
     		ps.setDouble(3, warp.z);
     		ps.setString(4, warp.world);
     		ps.setInt(5, warp.yaw);

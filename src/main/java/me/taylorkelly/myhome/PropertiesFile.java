@@ -3,8 +3,6 @@ package me.taylorkelly.myhome;
 import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class PropertiesFile {
     private HashMap<String, PropertiesEntry> map;
@@ -40,9 +38,9 @@ public class PropertiesFile {
                 map.put(key, new PropertiesEntry(value, comment));
             }
         } catch (FileNotFoundException e) {
-            Logger.getLogger("Minecraft").log(Level.SEVERE, "[MYHOME]: Cannot read file " + file.getName());
+        	HomeLogger.severe("Cannot read file " + file.getName());
         } catch (IOException e) {
-            Logger.getLogger("Minecraft").log(Level.SEVERE, "[MYHOME]: Cannot create file " + file.getName());
+        	HomeLogger.severe("Cannot create file " + file.getName());
         }
     }
 
@@ -71,7 +69,7 @@ public class PropertiesFile {
             try {
                 return Integer.parseInt(map.get(key).value);
             } catch (Exception e) {
-                Logger.getLogger("Minecraft").log(Level.WARNING, "[MYHOME]: Trying to get Integer from " + key + ": " + map.get(key).value);
+            	HomeLogger.warning("Trying to get Integer from " + key + ": " + map.get(key).value);
                 return 0;
             }
         } else {
@@ -86,7 +84,7 @@ public class PropertiesFile {
             try {
                 return Long.parseLong(map.get(key).value);
             } catch (Exception e) {
-                Logger.getLogger("Minecraft").log(Level.WARNING, "[MYHOME]: Trying to get Long from " + key + ": " + map.get(key).value);
+            	HomeLogger.warning("Trying to get Long from " + key + ": " + map.get(key).value);
                 return 0;
             }
         } else {
@@ -101,7 +99,7 @@ public class PropertiesFile {
             try {
                 return Double.parseDouble(map.get(key).value);
             } catch (Exception e) {
-                Logger.getLogger("Minecraft").log(Level.WARNING, "[MYHOME]: Trying to get Double from " + key + ": " + map.get(key).value);
+            	HomeLogger.warning("Trying to get Double from " + key + ": " + map.get(key).value);
                 return 0;
             }
         } else {
@@ -145,7 +143,7 @@ public class PropertiesFile {
             }
             bwriter.flush();
         } catch (IOException e) {
-            Logger.getLogger("Minecraft").log(Level.SEVERE, "[MYHOME]: IO Exception with file " + file.getName());
+        	HomeLogger.severe("IO Exception with file " + file.getName());
         } finally {
             try {
                 if (bwriter != null) {
@@ -156,7 +154,7 @@ public class PropertiesFile {
                     fwriter.close();
                 }
             } catch (IOException e) {
-                Logger.getLogger("Minecraft").log(Level.SEVERE, "[MYHOME]: IO Exception with file " + file.getName() + " (on close)");
+            	HomeLogger.severe("IO Exception with file " + file.getName() + " (on close)");
             }
         }
 

@@ -11,7 +11,7 @@ public class Home {
     public String name;
     public String world;
     public double x;
-    public int y;
+    public double y;
     public double z;
     public int yaw;
     public int pitch;
@@ -21,7 +21,7 @@ public class Home {
     public static int nextIndex = 1;
     Location getLocation;
 
-    public Home(int index, String name, String world, double x, int y, double z, int yaw, int pitch, boolean publicAll, String permissions, String welcomeMessage) {
+    public Home(int index, String name, String world, double x, double y, double z, int yaw, int pitch, boolean publicAll, String permissions, String welcomeMessage) {
         this.index = index;
         this.name = name;
         this.world = world;
@@ -114,7 +114,7 @@ public class Home {
             player.sendMessage(ChatColor.RED + "Uh oh. The world with that home doesn't exist!");
         } else {
             Location location = new Location(currWorld, x, y, z, yaw, pitch);
-            player.teleportTo(location);
+            player.teleport(location);
             player.sendMessage(ChatColor.AQUA + this.welcomeMessage);
         }
     }

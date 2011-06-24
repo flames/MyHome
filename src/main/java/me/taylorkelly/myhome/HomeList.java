@@ -84,6 +84,17 @@ public class HomeList {
             player.sendMessage(ChatColor.RED + "You have no home to delete :(");
         }
     }
+    
+    public void clearHome(String srchplayer, Player player) {
+        if (homeList.containsKey(srchplayer)) {
+            Home warp = homeList.get(srchplayer);
+            homeList.remove(srchplayer);
+            WarpDataSource.deleteWarp(warp);
+            player.sendMessage(ChatColor.AQUA + "You have deleted "+srchplayer+"'s home");
+        } else {
+            player.sendMessage(ChatColor.RED + "There is no home for " + srchplayer);
+        }
+    }
 
     public void privatize(Player player) {
         if (homeList.containsKey(player.getName())) {

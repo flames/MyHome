@@ -39,11 +39,13 @@ public class MHPlayerListener extends PlayerListener {
 
     @Override
     public void onPlayerTeleport(PlayerTeleportEvent event) {
-		World world = event.getPlayer().getWorld();
-		Chunk chunk = world.getChunkAt(event.getTo());
-		int x = chunk.getX();
-		int z = chunk.getZ();
-		world.refreshChunk(x, z);
+    	if(HomeSettings.loadChunks) {
+			World world = event.getPlayer().getWorld();
+			Chunk chunk = world.getChunkAt(event.getTo());
+			int x = chunk.getX();
+			int z = chunk.getZ();
+			world.refreshChunk(x, z);
+    	}
 	}
     
     @Override
